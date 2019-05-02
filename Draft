@@ -1,0 +1,36 @@
+# Import libraries
+import urllib.parse
+import urllib.request
+from urllib.request import urlopen
+from csv import writer
+from bs4 import BeautifulSoup
+
+# Declare a variable for the url and specify the search information
+url = 'https://www.ark.org/arsbn/statuswatch/index.php/nurse/search'
+values = {'name' : 'zach'}
+
+data = urllib.parse.urlencode(values)
+data = data.encode('ascii') # data should be bytes
+req = urllib.request.Request(url, data)
+with urllib.request.urlopen(req) as response: 
+	the_page = response.read()
+
+# parse the html using beautiful soup and store in variable `soup`
+soup = BeautifulSoup(the_page, 'html.parser')
+
+nurses = soup.find(class_='data_table')
+links = nurses.findAll('a')
+
+nurse_names = []
+for link in links:
+	nurse_names.append(link.get('title'))
+
+nurse_info = []
+for link in links:
+	nurse_info.append(link.get('href'))
+
+# this allows me to get the results without the link to sort ascending or descending 
+body = nurses.findAll('td')
+print (body)
+
+# still need to loop through remaining result pages - class_ = 'pagination'. Next, loop and click thorugh each link to collect the content class_ = 'box_content', then extract the specific attributes.
